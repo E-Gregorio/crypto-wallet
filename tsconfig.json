@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "target": "ES2019",
+      "module": "commonjs",
+      "strict": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "baseUrl": "./",
+      "paths": {
+        "@utils/*": ["utils/*"],
+        "@tests/*": ["tests/*"],
+        "@data/*": ["data/*"]
+      }
+    },
+    "include": ["src/**/*", "tests/**/*", "pages/**/*", "src/wallet.js"],
+    "exclude": ["node_modules", "**/*.test.ts"]
+  }
+  

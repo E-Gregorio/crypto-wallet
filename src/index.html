@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoWallet - Tu Billetera Digital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #0d47a1;
+            --accent-color: #2962ff;
+            --background-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --success-color: #00c853;
+            --warning-color: #ffd600;
+            --error-color: #d50000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .balance-container {
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .balance-title {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        /* Action Buttons */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-button {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-button i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .action-button span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Crypto Cards */
+        .crypto-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .crypto-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .crypto-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .crypto-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .crypto-details h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .crypto-details p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .crypto-price {
+            text-align: right;
+        }
+
+        .crypto-price .amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .crypto-price .change {
+            font-size: 0.8rem;
+            color: var(--success-color);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            text-align: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Utility Classes */
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-error {
+            color: var(--error-color);
+        }
+
+        .form-error {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .input-error {
+            border-color: var(--error-color) !important;
+        }
+
+        .p2p-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .p2p-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .p2p-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-rating {
+            color: var(--warning-color);
+            font-size: 0.8rem;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .payment-method {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .tab-container {
+            margin-bottom: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header with Balance -->
+        <header class="header">
+            <div class="balance-container">
+                <p class="balance-title">Balance Total</p>
+                <h1 class="balance-amount">$12,345.67</h1>
+                <p>+2.5% últimas 24h</p>
+            </div>
+        </header>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-button" id="btnBuy">
+                <i class="fas fa-credit-card"></i>
+                <span>Comprar</span>
+            </button>
+            <button class="action-button" id="btnSell">
+                <i class="fas fa-exchange-alt"></i>
+                <span>P2P</span>
+            </button>
+            <button class="action-button" id="btnSend">
+                <i class="fas fa-paper-plane"></i>
+                <span>Enviar</span>
+            </button>
+        </div>
+
+        <!-- Crypto List -->
+        <div class="crypto-list">
+            <div class="crypto-card" id="bitcoin">
+                <div class="crypto-info">
+                    <div class="crypto-icon">
+                        <i class="fab fa-bitcoin"></i>
+                    </div>
+                    <div class="crypto-details">
+                        <h3>Bitcoin</h3>
+                        <p>BTC</p>
+                    </div>
+                </div>
+                <div class="crypto-price">
+                    <div class="amount">$42,384.21</div>
+                    <div class="change text-success">+1.2%</div>
+                </div>
+            </div>
+
+            <div class="crypto-card" id="ethereum">
+                <div class="crypto-info">
+                    <div class="crypto-icon">
+                        <i class="fab fa-ethereum"></i>
+                    </div>
+                    <div class="crypto-details">
+                        <h3>Ethereum</h3>
+                        <p>ETH</p>
+                    </div>
+                </div>
+                <div class="crypto-price">
+                    <div class="amount">$2,841.35</div>
+                    <div class="change text-success">+3.4%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" id="navHome">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="#" class="nav-item" id="navMarket">
+            <i class="fas fa-chart-line"></i>
+            <span>Mercado</span>
+        </a>
+        <a href="#" class="nav-item" id="navTrade">
+            <i class="fas fa-exchange-alt"></i>
+            <span>P2P</span>
+        </a>
+        <a href="#" class="nav-item" id="navWallet">
+            <i class="fas fa-wallet"></i>
+            <span>Billetera</span>
+        </a>
+    </nav>
+
+    <!-- Buy Crypto Modal -->
+<div class="modal" id="buyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Comprar Bitcoin</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form id="buyForm">
+            <div class="form-group">
+                <label>Monto en USD</label>
+                <input type="number" placeholder="0.00" id="buyAmount" required>
+            </div>
+            <div class="form-group">
+                <label>Número de Tarjeta</label>
+                <input type="text" placeholder="1234 5678 9012 3456" id="cardNumber" required>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Vencimiento</label>
+                <input type="text" placeholder="MM/YY" id="cardExpiry" required>
+            </div>
+            <div class="form-group">
+                <label>CVV</label>
+                <input type="text" placeholder="123" id="cardCvv" required>
+            </div>
+            <button type="submit" class="btn">Confirmar Compra</button>
+        </form>
+
+        <!-- Aquí agregamos el mensaje de éxito que estará oculto inicialmente -->
+        <div id="successMessage" style="display:none; color: green; font-weight: bold; margin-top: 12px;">
+            ¡Compra Confirmada con Éxito!
+        </div>
+    </div>
+</div>
+                 <!-- P2P Modal -->
+    <div class="modal" id="p2pModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>P2P Trading</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="buy">Comprar</button>
+                    <button class="tab" data-tab="sell">Vender</button>
+                </div>
+                <div class="tab-content active" data-tab="buy">
+                    <div class="p2p-list">
+                        <!-- Las ofertas se cargarán dinámicamente -->
+                    </div>
+                </div>
+                <div class="tab-content" data-tab="sell">
+                    <form id="createP2pForm">
+                        <div class="form-group">
+                            <label>Cantidad BTC</label>
+                            <input type="number" id="p2pAmount" step="0.0001" required>
+                            <span class="form-error" id="p2pAmountError">Ingrese una cantidad válida</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio por BTC (USD)</label>
+                            <input type="number" id="p2pPrice" required>
+                            <span class="form-error" id="p2pPriceError">Ingrese un precio válido</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Método de pago</label>
+                            <select id="paymentMethod" required>
+                                <option value="">Seleccione un método</option>
+                                <option value="bank">Transferencia bancaria</option>
+                                <option value="mercadopago">MercadoPago</option>
+                                <option value="paypal">PayPal</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Crear Oferta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Modal -->
+    <div class="modal" id="sendModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Enviar Criptomonedas</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="sendForm">
+                <div class="form-group">
+                    <label>Dirección de Destino</label>
+                    <input type="text" id="recipientAddress" required>
+                    <span class="form-error" id="addressError">Ingrese una dirección válida</span>
+                </div>
+                <div class="form-group">
+                    <label>Cantidad</label>
+                    <input type="number" id="sendAmount" step="0.0001" required>
+                    <span class="form-error" id="sendAmountError">Ingrese una cantidad válida</span>
+                </div>
+                <div class="form-group">
+                    <label>Criptomoneda</label>
+                    <select id="sendCrypto" required>
+                        <option value="BTC">Bitcoin (BTC)</option>
+                        <option value="ETH">Ethereum (ETH)</option>
+                    </select>
+                </div>
+                <div class="success-message" id="sendSuccess">
+                    Transacción enviada con éxito
+                </div>
+                <button type="submit" class="btn">Enviar</button>
+            </form>
+        </div>
+    </div>
+    <script src="wallet.js"></script>
+</body>
+</html>
